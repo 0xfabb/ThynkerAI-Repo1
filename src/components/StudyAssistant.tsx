@@ -1,9 +1,9 @@
 "use client";
 
 import React, { useState } from "react";
-import { Input } from "../components/ui/input";
-import { Button } from "../components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "../components/ui/card";
+import { Input } from "../../components/ui/input";
+import { Button } from "../../components/ui/button";
+import { Card, CardContent, CardHeader, CardTitle } from "../../components/ui/card";
 
 export const StudyAssistant = () => {
 	const [question, setQuestion] = useState("");

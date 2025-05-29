@@ -1,5 +1,5 @@
 import React from "react";
-import { Button } from "../components/ui/button"; 
+import { Button } from "../../components/ui/button"; 
 import { BsPerson } from "react-icons/bs";
 
 export const Header = () => (
@@ -8,7 +8,6 @@ export const Header = () => (
       <span role="img" aria-label="AI"></span> StudyAI
     </div>
     <nav>
-      <Button variant="outline" className="mr-2">Dashboard</Button>
       <Button variant="ghost">
         <span className="flex items-center justify-center w-8 h-8 bg-black rounded-full">
           <BsPerson className="text-white w-5 h-5" />
