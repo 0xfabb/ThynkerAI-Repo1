@@ -5,6 +5,7 @@ import { client } from "../src/lib/appwrite";
 import { AppwriteException } from "appwrite";
 import { StudyAssistant } from "../src/components/StudyAssistant";
 
+
 const HomePage = () => {
   return (
     <>
