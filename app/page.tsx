@@ -1,8 +1,6 @@
 import React from "react";
 import { Header } from "../src/components/Header";
 import { Footer } from "../src/components/Footer";
-import { client } from "../src/lib/appwrite";
-import { AppwriteException } from "appwrite";
 import { StudyAssistant } from "../src/components/StudyAssistant";
 
 
