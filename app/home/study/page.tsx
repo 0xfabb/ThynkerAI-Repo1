@@ -30,7 +30,7 @@ export default function StudyPage() {
   const fetchChats = async () => {
     const userData = await account.get();
     const userId = userData.email;
-    const res = await axios.get("/api/graphs", {
+    const res = await axios.get("/api/study", {
       params: { userId },
     });
     // Map documents to your chat format
@@ -92,7 +92,7 @@ export default function StudyPage() {
 
     try {
       // Send docId if exists, else let backend create new doc
-      const response = await axios.post("/api/graphs", {
+      const response = await axios.post("/api/study", {
         question: input,
         userId,
         docId,
