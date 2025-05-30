@@ -3,33 +3,75 @@
 import { LoggedNav } from "@/components/LoggedNav";
 import { Button } from "@/components/ui/button";
 import { useState } from "react";
+import axios from "axios";
+import Markdown from "react-markdown";
+
+
 
 export default function StudyPage() {
   const [chats, setChats] = useState([
-    { id: 1, title: "Math Doubts" },
-    { id: 2, title: "Physics Revision" },
+    { id: 1, title: "Math Doubts", messages: [
+      { role: "user", content: "What is the Pythagorean theorem?" },
+      { role: "ai", content: "The Pythagorean theorem states that..." },
+    ] },
+    { id: 2, title: "Physics Revision", messages: [] },
   ]);
-  const [activeChat, setActiveChat] = useState<number | null>(chats[0]?.id || null);
-  const [messages, setMessages] = useState([
-    { role: "user", content: "What is the Pythagorean theorem?" },
-    { role: "ai", content: "The Pythagorean theorem states that..." },
-  ]);
+  const [activeChat, setActiveChat] = useState<number>(chats[0]?.id || 1);
   const [input, setInput] = useState("");
   const [sidebarOpen, setSidebarOpen] = useState(false);
+  const [loading, setLoading] = useState(false);
+
+  const getActiveChat = () => chats.find(chat => chat.id === activeChat);
 
   const handleNewChat = () => {
-    const newId = chats.length + 1;
-    setChats([{ id: newId, title: `New Chat ${newId}` }, ...chats]);
+    const newId = chats.length ? Math.max(...chats.map(c => c.id)) + 1 : 1;
+    const newChat = { id: newId, title: `New Chat ${newId}`, messages: [] };
+    setChats([newChat, ...chats]);
     setActiveChat(newId);
-    setMessages([]);
     setSidebarOpen(false);
   };
 
-  const handleSend = () => {
-    if (!input.trim()) return;
-    setMessages([...messages, { role: "user", content: input }]);
+  const handleSend = async () => {
+    if (!input.trim() || loading) return;
+    setLoading(true);
+
+    // Add user message
+    setChats(prev =>
+      prev.map(chat =>
+        chat.id === activeChat
+          ? { ...chat, messages: [...chat.messages, { role: "user", content: input }] }
+          : chat
+      )
+    );
     setInput("");
-    // Here you would call your AI backend and append the AI's response to messages
+
+    try {
+      const response = await axios.post("/api/graphs", {
+        question: input,
+      });
+      const data = response.data;
+      const markdownAnswer =
+        data?.candidates?.[0]?.content?.parts?.[0]?.text || "No answer found.";
+      const answerText = markdownAnswer;
+      
+      setChats(prev =>
+        prev.map(chat =>
+          chat.id === activeChat
+            ? { ...chat, messages: [...chat.messages, { role: "ai", content: answerText }] }
+            : chat
+        )
+      );
+    } catch {
+      setChats(prev =>
+        prev.map(chat =>
+          chat.id === activeChat
+            ? { ...chat, messages: [...chat.messages, { role: "ai", content: "Sorry, there was an error processing your request." }] }
+            : chat
+        )
+      );
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
@@ -100,17 +142,17 @@ export default function StudyPage() {
               &#9776;
             </button>
             <span className="font-bold text-lg">
-              {chats.find(chat => chat.id === activeChat)?.title || "Chats"}
+              {getActiveChat()?.title || "Chats"}
             </span>
             <div className="w-8" /> {/* Spacer */}
           </div>
           <div className="flex-1 overflow-y-auto p-4 md:p-8 space-y-4">
-            {messages.length === 0 && (
+            {getActiveChat()?.messages.length === 0 && (
               <div className="text-gray-400 text-center mt-20">
                 Start a conversation!
               </div>
             )}
-            {messages.map((msg, idx) => (
+            {getActiveChat()?.messages.map((msg, idx) => (
               <div
                 key={idx}
                 className={`flex ${msg.role === "user" ? "justify-end" : "justify-start"}`}
@@ -122,7 +164,11 @@ export default function StudyPage() {
                       : "bg-gray-200 text-gray-900"
                   }`}
                 >
-                  {msg.content}
+                  {msg.role === "ai" ? (
+                    <Markdown>{msg.content}</Markdown>
+                  ) : (
+                    msg.content
+                  )}
                 </div>
               </div>
             ))}
@@ -140,12 +186,14 @@ export default function StudyPage() {
               placeholder="Type your message..."
               value={input}
               onChange={e => setInput(e.target.value)}
+              disabled={loading}
             />
             <Button
               type="submit"
               className="px-4 py-2 rounded hover:bg-neutral-800 transition"
+              disabled={loading || !input.trim()}
             >
-              Send
+              {loading ? "Sending..." : "Send"}
             </Button>
           </form>
         </main>

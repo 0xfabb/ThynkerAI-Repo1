@@ -5,6 +5,8 @@ import { LoggedNav } from "@/components/LoggedNav";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { FaUserCircle, FaRobot, FaBook, FaUsers, FaCrown, FaUser } from "react-icons/fa";
+import axios from "axios";
+import ReactMarkdown from "react-markdown";
 
 export default function AskPage() {
   const [question, setQuestion] = useState("");
@@ -43,11 +45,24 @@ export default function AskPage() {
     setFile(null);
     setShareWithCommunity(false);
     // Simulate AI response
-    setTimeout(() => {
-      const aiResponse = "This is a sample AI answer. Replace with real AI response.";
-      setChat((prev) => [...prev, { role: "ai", content: aiResponse }]);
-      setAiAnswer(aiResponse);
-      setLoading(false);
+    setTimeout(async () => {
+      try {
+        const response = await axios.post("/api/graphs", {
+          question: question,
+        });
+        const data = response.data;
+        const markdownAnswer =
+          data?.candidates?.[0]?.content?.parts?.[0]?.text || "No answer found.";
+        const answerText = markdownAnswer;
+        setChat((prev) => [...prev, { role: "ai", content: answerText }]);
+        setAiAnswer(answerText);
+      } catch (_error) {
+        setChat((prev) => [...prev, { role: "ai", content: "Error fetching answer." }]);
+        setAiAnswer("Error fetching answer.");
+        console.log(_error);
+    } finally {
+        setLoading(false);
+      }
     }, 1200);
   };
 
@@ -117,7 +132,11 @@ export default function AskPage() {
                           : "bg-neutral-700 text-blue-100 rounded-bl-md"
                       }`}
                     >
-                      {msg.content}
+                      {msg.role === "ai" ? (
+                        <ReactMarkdown>{msg.content}</ReactMarkdown>
+                      ) : (
+                        msg.content
+                      )}
                     </div>
                     {msg.role === "user" && (
                       <FaUserCircle className="text-blue-300 text-xl mb-1" />

@@ -1,6 +1,7 @@
 "use client";
 
 import { LoggedNav } from "@/components/LoggedNav";
+import { StudyAssistant } from "@/components/StudyAssistant";
 
 export default function MathsPage() {
   return (
@@ -10,6 +11,7 @@ export default function MathsPage() {
         <h1 className="text-2xl font-bold mb-4">Coming Soon!!</h1>
       <h1 className="text-2xl font-bold mb-4">Learn Maths like never before with AI</h1>
       {/* Place your Ask Doubt from AI UI here */}
+      <StudyAssistant />
     </div>
     </>
   );
