@@ -2,32 +2,71 @@
 
 import { LoggedNav } from "@/components/LoggedNav";
 import { Button } from "@/components/ui/button";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import axios from "axios";
 import Markdown from "react-markdown";
+import { account } from "@/lib/appwrite";
 
+type Message = {
+  role: "user" | "ai";
+  content: string;
+};
 
+type Chat = {
+  id: number;
+  title: string;
+  messages: Message[];
+  docId: string;
+};
 
 export default function StudyPage() {
-  const [chats, setChats] = useState([
-    { id: 1, title: "Math Doubts", messages: [
-      { role: "user", content: "What is the Pythagorean theorem?" },
-      { role: "ai", content: "The Pythagorean theorem states that..." },
-    ] },
-    { id: 2, title: "Physics Revision", messages: [] },
-  ]);
-  const [activeChat, setActiveChat] = useState<number>(chats[0]?.id || 1);
+  const [chats, setChats] = useState<Chat[]>([]);
+  const [activeChat, setActiveChat] = useState<number | null>(null);
   const [input, setInput] = useState("");
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [loading, setLoading] = useState(false);
 
+  // Fetch all chats for the user
+  const fetchChats = async () => {
+    const userData = await account.get();
+    const userId = userData.email;
+    const res = await axios.get("/api/study", {
+      params: { userId },
+    });
+    // Map documents to your chat format
+    interface ApiChatDoc {
+        $id: string;
+        title?: string;
+        Chat?: string; // <-- use Chat, not chatData
+    }
+
+    const docs: Chat[] = ((res.data.chats || []) as ApiChatDoc[]).map((doc: ApiChatDoc, idx: number): Chat => ({
+        id: idx + 1,
+        title: doc.title || `Chat ${idx + 1}`,
+        messages: doc.Chat ? (JSON.parse(doc.Chat) as Message[]) : [], // <-- use doc.Chat
+        docId: doc.$id,
+    }));
+    setChats(docs);
+    if (docs.length > 0 && activeChat === null) {
+      setActiveChat(docs[0].id);
+    }
+  };
+
+  useEffect(() => {
+    fetchChats();
+    // eslint-disable-next-line
+  }, []);
+
   const getActiveChat = () => chats.find(chat => chat.id === activeChat);
 
-  const handleNewChat = () => {
-    const newId = chats.length ? Math.max(...chats.map(c => c.id)) + 1 : 1;
-    const newChat = { id: newId, title: `New Chat ${newId}`, messages: [] };
-    setChats([newChat, ...chats]);
-    setActiveChat(newId);
+  const handleNewChat = async () => {
+    const userData = await account.get();
+    const userId = userData.email;
+    await axios.post("/api/graphs", {
+      userId,
+      initial: true,
+    });
+    await fetchChats(); // Refresh chats after creating new one
     setSidebarOpen(false);
   };
 
@@ -35,7 +74,7 @@ export default function StudyPage() {
     if (!input.trim() || loading) return;
     setLoading(true);
 
-    // Add user message
+    // Add user message locally
     setChats(prev =>
       prev.map(chat =>
         chat.id === activeChat
@@ -44,20 +83,32 @@ export default function StudyPage() {
       )
     );
     setInput("");
+    const userData = await account.get();
+    const userId = userData.email;
+
+    // Get docId for this chat
+    const currentChat = chats.find(chat => chat.id === activeChat);
+    const docId = currentChat?.docId || null;
 
     try {
-      const response = await axios.post("/api/graphs", {
+      // Send docId if exists, else let backend create new doc
+      const response = await axios.post("/api/study", {
         question: input,
+        userId,
+        docId,
       });
-      const data = response.data;
-      const markdownAnswer =
-        data?.candidates?.[0]?.content?.parts?.[0]?.text || "No answer found.";
-      const answerText = markdownAnswer;
-      
+      const answerText = response.data.aiResponse || "No answer found.";
+      const returnedDocId = response.data.docId;
+
       setChats(prev =>
         prev.map(chat =>
           chat.id === activeChat
-            ? { ...chat, messages: [...chat.messages, { role: "ai", content: answerText }] }
+            ? {
+                ...chat,
+                messages: [...chat.messages, { role: "ai", content: answerText }],
+                // Save docId if it was just created
+                docId: chat.docId || returnedDocId,
+              }
             : chat
         )
       );

@@ -7,6 +7,7 @@ import { Input } from "@/components/ui/input";
 import { FaUserCircle, FaRobot, FaBook, FaUsers, FaCrown, FaUser } from "react-icons/fa";
 import axios from "axios";
 import ReactMarkdown from "react-markdown";
+import {account} from "../../../lib/appwrite"
 
 export default function AskPage() {
   const [question, setQuestion] = useState("");
@@ -31,6 +32,8 @@ export default function AskPage() {
   const [shareWithCommunity, setShareWithCommunity] = useState(false);
 
   const handleAsk = async () => {
+    const userData = await account.get();
+    const userId = userData.email;
     if (!question && !file) return;
     setLoading(true);
     setChat([...chat, { role: "user", content: question || (file ? `Sent file: ${file.name}` : "") }]);
@@ -49,10 +52,11 @@ export default function AskPage() {
       try {
         const response = await axios.post("/api/graphs", {
           question: question,
+          userId
         });
-        const data = response.data;
+        const data = response.data.aiResponse;
         const markdownAnswer =
-          data?.candidates?.[0]?.content?.parts?.[0]?.text || "No answer found.";
+         data || "No answer found.";
         const answerText = markdownAnswer;
         setChat((prev) => [...prev, { role: "ai", content: answerText }]);
         setAiAnswer(answerText);

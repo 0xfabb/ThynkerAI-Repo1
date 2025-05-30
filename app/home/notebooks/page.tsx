@@ -7,6 +7,7 @@ import { Input } from "@/components/ui/input";
 import { FaPlus, FaShareAlt, FaLock, FaUnlock } from "react-icons/fa";
 import axios from "axios";
 import {account} from "../../../lib/appwrite"
+import Image from "next/image";
 
 type Notebook = {
   $id: string;
@@ -219,7 +220,7 @@ export default  function NotebooksPage() {
                       {item}
                     </div>
                   ) : (
-                    <img
+                    <Image
                       key={idx}
                       src={item.url}
                       alt="Notebook"
