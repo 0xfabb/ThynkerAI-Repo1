@@ -37,7 +37,7 @@ export default function StudyPage() {
     interface ApiChatDoc {
         $id: string;
         title?: string;
-        Chat?: string; // <-- use Chat, not chatData
+        Chat?: string; 
     }
 
     const docs: Chat[] = ((res.data.chats || []) as ApiChatDoc[]).map((doc: ApiChatDoc, idx: number): Chat => ({

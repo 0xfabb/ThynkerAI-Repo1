@@ -3,6 +3,7 @@ import { Button } from "./ui/button";
 import { client } from "../lib/appwrite";
 import { useRouter } from "next/navigation";
 import { Account } from "appwrite";
+import { LogOut } from "lucide-react";
 
 const account = new Account(client);
 
@@ -24,7 +25,7 @@ export const LoggedNav = () => {
       <div className="text-2xl font-bold text-primary tracking-tight flex items-center gap-2">
         <span onClick={()=> {
           router.push("/home")
-        }} role="img" aria-label="AI" className="cursor-pointer"> StudyAI</span>
+        }} role="img" aria-label="AI" className="cursor-pointer">Thynker</span>
       </div>
       {/* Hamburger Icon */}
       <button
@@ -40,17 +41,17 @@ export const LoggedNav = () => {
       <nav className="hidden md:flex items-center gap-8">
         <div className="flex gap-6">
           <a href="/home/ask" className="transition-colors px-2 py-1 rounded hover:bg-gray-900 hover:text-white duration-200">Ask a Doubt</a>
-          <a href="/home/notebooks" className="transition-colors px-2 py-1 rounded hover:bg-gray-900 hover:text-white duration-200">Saved Notebooks</a>
-          <a href="/home/study" className="transition-colors px-2 py-1 rounded hover:bg-gray-900 hover:text-white duration-200">Study with AI</a>
-          <a href="/home/graphs" className="transition-colors px-2 py-1 rounded hover:bg-gray-900 hover:text-white duration-200">Graphs</a>
-          <a href="/home/maths" className="transition-colors px-2 py-1 rounded hover:bg-gray-900 hover:text-white duration-200">Maths++ with AI</a>
+          <a href="/home/notebooks" className="transition-colors px-2 py-1 rounded hover:bg-gray-900 hover:text-white duration-200">Notebooks</a>
+          <a href="/home/study" className="transition-colors px-2 py-1 rounded hover:bg-gray-900 hover:text-white duration-200">Euler AI</a>
+          <a href="/home/maths" className="transition-colors px-2 py-1 rounded hover:bg-gray-900 hover:text-white duration-200">Thynker Agent</a>
         </div>
         <Button
           variant="ghost"
-          className="bg-gray-900 text-white hover:text-white hover:bg-gray-800 transition-colors duration-200"
+          className="bg-gray-900 text-white hover:text-white hover:bg-gray-800 transition-colors duration-200 cursor-pointer"
           onClick={handleLogout}
+          aria-label="Logout"
         >
-          Logout
+          <LogOut className="w-5 h-5" />
         </Button>
       </nav>
       {/* Mobile Nav */}
@@ -63,10 +64,11 @@ export const LoggedNav = () => {
           <a href="/home/maths" className="w-full text-center transition-colors px-4 py-2 rounded hover:bg-gray-900 hover:text-white duration-200" onClick={() => setMenuOpen(false)}>Maths++ with AI</a>
           <Button
             variant="ghost"
-            className="bg-gray-900 text-white hover:text-white hover:bg-gray-800 transition-colors duration-200 w-full"
+            className="bg-gray-900 text-white hover:text-white hover:bg-gray-800 transition-colors duration-200 w-1/2"
             onClick={handleLogout}
+            aria-label="Logout"
           >
-            Logout
+           Logout
           </Button>
         </nav>
       )}

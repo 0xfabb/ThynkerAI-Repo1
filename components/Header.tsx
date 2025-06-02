@@ -1,17 +1,22 @@
 import React from "react";
-import { Button } from "./ui/button"; 
-import { BsPerson } from "react-icons/bs";
+import { Button } from "./ui/button";
 
 export const Header = () => (
-  <header className="flex items-center justify-between px-8 py-5 border-b bg-white/80 backdrop-blur sticky top-0 z-30 shadow-sm">
+  <header className="scroll-hidden flex items-center justify-between px-8 py-5 border-b bg-white/80 backdrop-blur sticky top-0 z-30 shadow-sm">
     <div className="text-2xl font-bold text-primary tracking-tight flex items-center gap-2">
-      <span role="img" aria-label="AI"></span> StudyAI
+    ThynkerAI
     </div>
     <nav>
-      <Button variant="ghost">
-        <span className="flex items-center justify-center w-8 h-8 bg-black rounded-full">
-          <BsPerson className="text-white w-5 h-5" />
-        </span>
+      <Button
+        className="
+      bg-neutral-800
+      text-white
+      hover:bg-neutral-900
+      hover:text-white
+      "
+        variant="ghost"
+      >
+        Sign Up
       </Button>
     </nav>
   </header>
