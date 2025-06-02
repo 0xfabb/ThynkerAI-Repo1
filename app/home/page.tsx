@@ -19,13 +19,13 @@ const quickLinks = [
 		desc: "Get instant help from AI for your questions.",
 	},
 	{
-		label: "Saved Notebooks",
+		label: "Notebooks",
 		href: "/home/notebooks",
 		icon: <FaBook className="text-green-500" />,
 		desc: "Review and organize your saved notes.",
 	},
 	{
-		label: "Study with AI",
+		label: "Euler AI",
 		href: "/home/study",
 		icon: <FaPenFancy className="text-purple-500" />,
 		desc: "Continue your AI-powered study sessions.",
